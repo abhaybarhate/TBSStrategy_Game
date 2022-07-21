@@ -22,6 +22,7 @@ public class GridSystem
             {
                 GridPosition gridPosition = new GridPosition(x,z);
                 gridObjectArray[x,z] = new GridObject(this, gridPosition);
+                //new GridObject(this, gridPosition);
             }
         }
     }
