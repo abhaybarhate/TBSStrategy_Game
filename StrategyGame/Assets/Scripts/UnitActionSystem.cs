@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class UnitActionSystem : MonoBehaviour
 {
-    public static UnitActionSystem Instance { get; private set; }
+    public static UnitActionSystem Instance { get; private set; }       // Singleton Pattern Instance
 
     public event EventHandler OnSelectedUnitChanged;
 
@@ -28,7 +28,12 @@ public class UnitActionSystem : MonoBehaviour
         if(Input.GetMouseButtonDown(0))
         {
             if(TryHandleUnitSelection()) return;
-            selectedUnit.Move(MouseWorld.GetMousePosition());
+            GridPosition mouseGridPosition = LevelGrid.Instance.GetGridPosition(MouseWorld.GetMousePosition());
+            if(selectedUnit.GetMoveAction().IsValidActionGridPosition(mouseGridPosition))
+            {
+                selectedUnit.GetMoveAction().Move(mouseGridPosition);
+            }
+            
         }
     }
 
