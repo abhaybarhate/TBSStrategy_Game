@@ -26,16 +26,17 @@ public class Unit : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         
-        if(LevelGrid.Instance)
+
+        GridPosition newGridPosition = LevelGrid.Instance.GetGridPosition(transform.position);
+        if (newGridPosition != gridPosition)
         {
-            GridPosition newGridPosition = LevelGrid.Instance.GetGridPosition(transform.position);
-            if(newGridPosition != gridPosition)
-            {
-                LevelGrid.Instance.UnitMovedGridPosition(this, gridPosition, newGridPosition);
-                gridPosition = newGridPosition;
-            }
+            // Unit changed Grid Position
+            LevelGrid.Instance.UnitMovedGridPosition(this, gridPosition, newGridPosition);
+            gridPosition = newGridPosition;
         }
+
     }
 
     public MoveAction GetMoveAction()

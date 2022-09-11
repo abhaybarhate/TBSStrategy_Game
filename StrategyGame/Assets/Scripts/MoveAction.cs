@@ -25,24 +25,29 @@ public class MoveAction : MonoBehaviour
 
     void Update()
     {
-        if(Vector3.Distance(transform.position, TargetPosition) > .1f)
+        float stoppingDistance = .1f;
+        if (Vector3.Distance(transform.position, TargetPosition) > stoppingDistance)
         {
-            Vector3 MoveDirection = (TargetPosition - transform.position).normalized;
+            Vector3 moveDirection = (TargetPosition - transform.position).normalized;
             float moveSpeed = 4f;
-            transform.position += MoveDirection * Time.deltaTime * moveSpeed;
-            float rotateSpeed = 10f;    
-            transform.forward = Vector3.Lerp(transform.forward, MoveDirection, Time.deltaTime * rotateSpeed);
+            transform.position += moveDirection * moveSpeed * Time.deltaTime;
+
+            float rotateSpeed = 10f;
+            transform.forward = Vector3.Lerp(transform.forward, moveDirection, Time.deltaTime * rotateSpeed);
+
             UnitAnimator.SetBool("IsWalking", true);
-        } 
-        else {
+        }
+        else
+        {
             UnitAnimator.SetBool("IsWalking", false);
         }
-        
+
     }
 
     public void Move(GridPosition gridPosition)
     {
         this.TargetPosition = LevelGrid.Instance.GetWorldPosition(gridPosition);
+        Debug.Log("I m moving");
     }
 
     public bool IsValidActionGridPosition(GridPosition gridPosition)
@@ -57,7 +62,7 @@ public class MoveAction : MonoBehaviour
         GridPosition unitGridPosition = unit.GetGridPosition();
         for(int x = -maxMoveDistance; x <= maxMoveDistance; x++)
         {
-            for(int z = -maxMoveDistance; x <= maxMoveDistance; x++)
+            for(int z = -maxMoveDistance; z <= maxMoveDistance; z++)
             {
                 GridPosition offsetGridPosition = new GridPosition(x,z);
                 GridPosition testGridPosition = unitGridPosition + offsetGridPosition;
@@ -67,7 +72,7 @@ public class MoveAction : MonoBehaviour
                 validGridPositionList.Add(testGridPosition);
             }
         }
-
+        
         return validGridPositionList;
     }
 

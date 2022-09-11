@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class GridSystem
 {
-
+    
     private int width;
     private int height;
     private float cellSize;
     private GridObject[,] gridObjectArray;
-
+    
     public GridSystem(int width, int height, float cellSize)
     {
         this.width = width;
