@@ -5,9 +5,8 @@ using UnityEngine;
 
 public abstract class BaseAction : MonoBehaviour
 {
-
-    protected bool isMoveActionActive; 
-    protected bool isSpinActionActive;
+    protected bool isActive;
+    
     protected Unit unit;
     protected Action onActionComplete;
 
@@ -31,6 +30,18 @@ public abstract class BaseAction : MonoBehaviour
     public virtual int GetActionPointsCost()
     {
         return 1;
+    }
+
+    protected void ActionStart(Action onActionComplete)
+    {
+        isActive = true;
+        this.onActionComplete = onActionComplete;
+    }
+
+    protected void ActionComplete()
+    {
+        isActive = false;
+        onActionComplete();
     }
 
 }

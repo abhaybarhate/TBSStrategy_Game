@@ -13,6 +13,8 @@ public class MoveAction : BaseAction
     private Vector3 TargetPosition;
     private GridPosition gridPosition;
     
+    public event EventHandler onStartMoving;
+    public event EventHandler onStopMoving;
 
     protected override void Awake() {
         base.Awake();
@@ -25,7 +27,7 @@ public class MoveAction : BaseAction
 
     void Update()
     {
-        if(!isMoveActionActive) return;
+        if(!isActive) return;
         float stoppingDistance = .1f;
         Vector3 moveDirection = (TargetPosition - transform.position).normalized;
         if (Vector3.Distance(transform.position, TargetPosition) > stoppingDistance)
@@ -36,14 +38,12 @@ public class MoveAction : BaseAction
 
             
 
-            UnitAnimator.SetBool("IsWalking", true);
         }
 
         else
         {
-            UnitAnimator.SetBool("IsWalking", false);
-            isMoveActionActive = false;
-            onActionComplete();
+            onStopMoving?.Invoke(this, EventArgs.Empty);
+            ActionComplete();
         }
 
         float rotateSpeed = 10f;
@@ -53,9 +53,9 @@ public class MoveAction : BaseAction
 
     public override void TakeAction(GridPosition gridPosition,Action onActionComplete)
     {
-        this.onActionComplete = onActionComplete;
+        ActionStart(onActionComplete);
         this.TargetPosition = LevelGrid.Instance.GetWorldPosition(gridPosition);
-        isMoveActionActive = true;
+        onStartMoving?.Invoke(this, EventArgs.Empty);
         Debug.Log("I m moving");
     }
 

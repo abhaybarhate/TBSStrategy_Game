@@ -6,6 +6,7 @@ using UnityEngine;
 public class Unit : MonoBehaviour
 {
     [SerializeField] private Animator UnitAnimator;  
+    [SerializeField] private bool isEnemy;
     private const int ACTION_POINTS_MAX = 2;
     private Vector3 TargetPosition;
     private GridPosition gridPosition;
@@ -103,9 +104,27 @@ public class Unit : MonoBehaviour
         return unitActionPoints;
     }
 
+    public bool IsEnemy()
+    {
+        return isEnemy;
+    }
+
     private void TurnSystem_OnTurnChanges(object sender, EventArgs e)
     {
-        unitActionPoints = ACTION_POINTS_MAX;
+        if((IsEnemy() && !TurnSystem.Instance.IsPlayerTurn()) || (!IsEnemy() && TurnSystem.Instance.IsPlayerTurn()))
+        {
+            unitActionPoints = ACTION_POINTS_MAX;
+        }    
+    }
+
+    public Vector3 GetWorldPosition()
+    {
+        return transform.position;
+    }
+
+    public void Damage()
+    {
+        Debug.Log("Bro I'm taking Damage... Here ::" + transform.position);
     }
 
 }

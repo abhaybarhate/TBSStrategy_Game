@@ -13,7 +13,7 @@ public class SpinAction : BaseAction
 
     void Update()
     {
-        if(!isSpinActionActive) return;
+        if(!isActive) return;
         
         float spinAddAmount = 360f * Time.deltaTime;
         
@@ -21,15 +21,13 @@ public class SpinAction : BaseAction
         totalSpinAmount += spinAddAmount;
         if(totalSpinAmount >= 360f)
         {
-            isSpinActionActive = false;
-            onActionComplete();
+            ActionComplete();
         }
     }
 
     public override void TakeAction(GridPosition gridPosition, Action onActionComplete)
     {
-        this.onActionComplete = onActionComplete;
-        isSpinActionActive = true;
+        ActionStart(onActionComplete);
         totalSpinAmount = 0f;
     }
 
