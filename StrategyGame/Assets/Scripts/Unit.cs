@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,11 +6,13 @@ using UnityEngine;
 public class Unit : MonoBehaviour
 {
     [SerializeField] private Animator UnitAnimator;  
+    private const int ACTION_POINTS_MAX = 2;
     private Vector3 TargetPosition;
     private GridPosition gridPosition;
     private MoveAction moveAction;
     private SpinAction spinAction;
     private BaseAction[] baseActionArray;
+    private int unitActionPoints = ACTION_POINTS_MAX;
 
     private void Awake() {
         moveAction = GetComponent<MoveAction>();
@@ -24,6 +27,9 @@ public class Unit : MonoBehaviour
             gridPosition = LevelGrid.Instance.GetGridPosition(transform.position);
             LevelGrid.Instance.AddUnitAtGridPosition(gridPosition, this);
         }
+
+        TurnSystem.Instance.OnTurnChanges += TurnSystem_OnTurnChanges;
+
     }
 
     // Update is called once per frame
@@ -40,6 +46,11 @@ public class Unit : MonoBehaviour
             gridPosition = newGridPosition;
         }
 
+    }
+
+    private void SpendActionPoints(int amount)
+    {
+        unitActionPoints -= amount;
     }
 
     public MoveAction GetMoveAction()
@@ -60,6 +71,41 @@ public class Unit : MonoBehaviour
     public BaseAction[] GetBaseActionArray()
     {
         return baseActionArray;
+    }
+
+    public bool TrySpendActionPointsToTakeAction(BaseAction baseAction)
+    {
+        if(CanSpendActionPoints(baseAction))
+        {
+            SpendActionPoints(baseAction.GetActionPointsCost());
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public bool CanSpendActionPoints(BaseAction baseAction)
+    {
+        if(unitActionPoints >= baseAction.GetActionPointsCost())
+        {
+            return true;
+        }
+        else 
+        {
+            return false;
+        }
+    }
+
+    public int GetActionPoints()
+    {
+        return unitActionPoints;
+    }
+
+    private void TurnSystem_OnTurnChanges(object sender, EventArgs e)
+    {
+        unitActionPoints = ACTION_POINTS_MAX;
     }
 
 }

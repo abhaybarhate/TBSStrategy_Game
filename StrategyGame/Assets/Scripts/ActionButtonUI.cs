@@ -9,9 +9,13 @@ public class ActionButtonUI : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI textMeshPro;
     [SerializeField] private Button button;
+    [SerializeField] private GameObject SelectedVisualImage;
+
+    private BaseAction baseAction;
 
     public void SetBaseAction(BaseAction baseAction)
     {
+        this.baseAction = baseAction;
         textMeshPro.text = baseAction.GetActionName().ToUpper();
 
         button.onClick.AddListener(() => {
@@ -19,4 +23,9 @@ public class ActionButtonUI : MonoBehaviour
         });
     }
 
+    public void SetActiveImageUI()
+    {
+        BaseAction selectedBaseAction = UnitActionSystem.Instance.GetSelectedAction();
+        SelectedVisualImage.SetActive(baseAction == selectedBaseAction);
+    }
 }
