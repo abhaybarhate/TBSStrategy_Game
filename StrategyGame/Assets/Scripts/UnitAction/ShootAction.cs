@@ -6,13 +6,8 @@ using UnityEngine;
 public class ShootAction : BaseAction
 {
 
-    private enum State
-    {
-        Aiming,
-        Shooting,
-        CoolOff
-    }
-
+    [SerializeField] private float damageAmount = 30f;
+    
     private State state;
     private int maxShootDistance = 8;
     private float stateTimer;
@@ -64,6 +59,16 @@ public class ShootAction : BaseAction
 
     }
 
+    public override string GetActionName()
+    {
+        return "SHOOT";
+    }
+
+    public Unit GetTargetUnit()
+    {
+        return targetUnit;
+    }
+    
     private void NextState()
     {
         switch(state)
@@ -90,18 +95,18 @@ public class ShootAction : BaseAction
             targetUnit = targetUnit,
             shootingUnit = unit
         });
-        targetUnit.Damage();
-    }
-
-    public override string GetActionName()
-    {
-        return "SHOOT";
+        targetUnit.Damage(damageAmount);
     }
 
     public override List<GridPosition> GetValidGridPositionsList()
     {
-        List<GridPosition> validGridPositionList = new List<GridPosition>();
         GridPosition unitGridPosition = unit.GetGridPosition();
+        return GetValidActionGridPositionsList(unitGridPosition);
+    }
+    
+    public List<GridPosition> GetValidActionGridPositionsList(GridPosition unitGridPosition)
+    {
+        List<GridPosition> validGridPositionList = new List<GridPosition>();
         for(int x = -maxShootDistance; x <= maxShootDistance; x++)
         {
             for(int z = -maxShootDistance; z <= maxShootDistance; z++)
@@ -131,13 +136,32 @@ public class ShootAction : BaseAction
 
     public override void TakeAction(GridPosition gridPosition, Action onActionComplete)
     {
-        ActionStart(onActionComplete);
         targetUnit = LevelGrid.Instance.GetUnitAtGridPosition(gridPosition);
         state = State.Aiming;
         float aimingStateTime = 1f;
         stateTimer = aimingStateTime;
         canShootBullet = true;
+        ActionStart(onActionComplete);
 
+    }
+    
+    public override EnemyAIAction GetEnemyAIAction(GridPosition position)
+    {
+        int targetCountAtPosition = unit.GetShootAction().GetTargetCountAtPosition(position);
+        return new EnemyAIAction { gridPosition = position, actionValue = 10 * targetCountAtPosition };
+    }
+
+    public int GetTargetCountAtPosition(GridPosition gridPosition)
+    {
+        return GetValidActionGridPositionsList(gridPosition).Count;
+    }
+    
+    
+    private enum State
+    {
+        Aiming,
+        Shooting,
+        CoolOff
     }
 
 }

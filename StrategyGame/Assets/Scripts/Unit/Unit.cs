@@ -10,15 +10,31 @@ public class Unit : MonoBehaviour
     private const int ACTION_POINTS_MAX = 2;
     private Vector3 TargetPosition;
     private GridPosition gridPosition;
+    private HealthSystem healthSystem;
     private MoveAction moveAction;
     private SpinAction spinAction;
+    private ShootAction shootAction;
     private BaseAction[] baseActionArray;
     private int unitActionPoints = ACTION_POINTS_MAX;
 
-    private void Awake() {
+
+    public static event EventHandler OnAnyActionPointsChange;
+    public static event EventHandler OnAnyUnitSpawned;
+    public static event EventHandler OnAnyUnitDead;
+    
+    
+    private void Awake()
+    {
+        healthSystem = GetComponent<HealthSystem>();
         moveAction = GetComponent<MoveAction>();
         spinAction = GetComponent<SpinAction>();
+        shootAction = GetComponent<ShootAction>();
         baseActionArray = GetComponents<BaseAction>();
+    }
+
+    private void OnEnable()
+    {
+        healthSystem.OnUnitDie += HealthSystem_OnUnitDie;
     }
 
     // Start is called before the first frame update
@@ -30,14 +46,17 @@ public class Unit : MonoBehaviour
         }
 
         TurnSystem.Instance.OnTurnChanges += TurnSystem_OnTurnChanges;
+        OnAnyUnitSpawned?.Invoke(this, EventArgs.Empty);
+    }
 
+    private void OnDisable()
+    {
+        healthSystem.OnUnitDie -= HealthSystem_OnUnitDie;
     }
 
     // Update is called once per frame
     void Update()
     {
-
-        
 
         GridPosition newGridPosition = LevelGrid.Instance.GetGridPosition(transform.position);
         if (newGridPosition != gridPosition)
@@ -49,11 +68,7 @@ public class Unit : MonoBehaviour
 
     }
 
-    private void SpendActionPoints(int amount)
-    {
-        unitActionPoints -= amount;
-    }
-
+    #region PublicGetMethods;
     public MoveAction GetMoveAction()
     {
         return moveAction;
@@ -64,6 +79,12 @@ public class Unit : MonoBehaviour
         return spinAction;
     }
 
+    public ShootAction GetShootAction()
+    {
+        return shootAction;
+    }
+    
+
     public GridPosition GetGridPosition()
     {
         return gridPosition;
@@ -73,7 +94,24 @@ public class Unit : MonoBehaviour
     {
         return baseActionArray;
     }
+    
+    public int GetActionPoints()
+    {
+        return unitActionPoints;
+    }
 
+    public bool IsEnemy()
+    {
+        return isEnemy;
+    }
+
+    public Vector3 GetWorldPosition()
+    {
+        return transform.position;
+    }
+    #endregion
+    
+    #region PublicMethods
     public bool TrySpendActionPointsToTakeAction(BaseAction baseAction)
     {
         if(CanSpendActionPoints(baseAction))
@@ -99,32 +137,35 @@ public class Unit : MonoBehaviour
         }
     }
 
-    public int GetActionPoints()
+    public void Damage(float damageAmount)
     {
-        return unitActionPoints;
+        healthSystem.TakeDamage(damageAmount);
     }
 
-    public bool IsEnemy()
-    {
-        return isEnemy;
-    }
-
+    #endregion
+    
+    #region PrivateMethods
     private void TurnSystem_OnTurnChanges(object sender, EventArgs e)
     {
         if((IsEnemy() && !TurnSystem.Instance.IsPlayerTurn()) || (!IsEnemy() && TurnSystem.Instance.IsPlayerTurn()))
         {
             unitActionPoints = ACTION_POINTS_MAX;
+            OnAnyActionPointsChange?.Invoke(this, EventArgs.Empty);
         }    
     }
 
-    public Vector3 GetWorldPosition()
+    private void HealthSystem_OnUnitDie(object sender, EventArgs e)
     {
-        return transform.position;
+        LevelGrid.Instance.RemoveUnitAtGridPosition(gridPosition, this);
+        OnAnyUnitDead?.Invoke(this, EventArgs.Empty);
+        Destroy(this.gameObject);
     }
-
-    public void Damage()
+    
+    private void SpendActionPoints(int amount)
     {
-        Debug.Log("Bro I'm taking Damage... Here ::" + transform.position);
+        unitActionPoints -= amount;
+        OnAnyActionPointsChange?.Invoke(this, EventArgs.Empty);
     }
-
+    
+    #endregion
 }
