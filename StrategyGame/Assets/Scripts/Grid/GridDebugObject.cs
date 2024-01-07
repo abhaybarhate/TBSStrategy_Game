@@ -9,18 +9,17 @@ public class GridDebugObject : MonoBehaviour
     private object gridObject;
 
 
-    public virtual void SetGridObject(GridObject gridObject)
+    public virtual void SetGridObject(object gridObject)
     {
         this.gridObject = gridObject;
 
     }
 
-    private void Update()
+    protected virtual void Update()
     {
-        if(textMeshPro != null && gridObject != null)
-        {
+        
             textMeshPro.text = gridObject.ToString();
-        }
+        
           
     }
 }

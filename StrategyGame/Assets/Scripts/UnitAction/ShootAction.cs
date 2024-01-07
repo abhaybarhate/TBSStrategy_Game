@@ -147,8 +147,10 @@ public class ShootAction : BaseAction
     
     public override EnemyAIAction GetEnemyAIAction(GridPosition position)
     {
+        Unit targetUnit = LevelGrid.Instance.GetUnitAtGridPosition(position);
+        targetUnit.GetHealthNormalized();
         int targetCountAtPosition = unit.GetShootAction().GetTargetCountAtPosition(position);
-        return new EnemyAIAction { gridPosition = position, actionValue = 10 * targetCountAtPosition };
+        return new EnemyAIAction { gridPosition = position, actionValue = 10 + Mathf.RoundToInt( 1 - targetUnit.GetHealthNormalized() * targetCountAtPosition) };
     }
 
     public int GetTargetCountAtPosition(GridPosition gridPosition)

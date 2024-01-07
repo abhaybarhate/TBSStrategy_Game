@@ -109,6 +109,12 @@ public class Unit : MonoBehaviour
     {
         return transform.position;
     }
+
+    public float GetHealthNormalized()
+    {
+        return healthSystem.GetHealthNormalized();
+    }
+    
     #endregion
     
     #region PublicMethods
